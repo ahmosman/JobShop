@@ -22,7 +22,6 @@ class Operations
         vector<vector<Operation>> _operations;
         vector<vector<Operation>> _reversed_operations;
         int num_jobs, num_machines;
-        vector<vector<Operation>> getReversedOperations();
         Operations(string filename);
         void setJobLimit(int limit);
 };

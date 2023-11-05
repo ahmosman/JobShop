@@ -23,6 +23,7 @@ void Operations::readInstanceFromFile(string filename)
             operation.duration = operations_duration[i][j];
             operation.machine = operations_machines[i][j];
             operation.job_no = i;
+            operation._is_null = false;
             _operations[i].push_back(operation);
         }
     }

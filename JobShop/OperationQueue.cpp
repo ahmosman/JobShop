@@ -25,8 +25,12 @@ Operation OperationQueue::popRandomPendingOperation()
 {
     int random_index = getRandomIndex(0, _queue.size());
 
+    while (_queue[random_index].empty()) {
+        random_index = getRandomIndex(0, _queue.size());
+    }
+
     Operation picked_operation = _queue[random_index].back();
-    _queue.pop_back();
+    _queue[random_index].pop_back();
 
     return picked_operation;
 }
