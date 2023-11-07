@@ -13,6 +13,7 @@ class OperationQueue
 
 		OperationQueue(Operations operations);
 		int getRandomIndex(int from, int to);
+		Operation getNextOperationForJob(int job_no);
 		void createOperationQueue(Operations operations);
 		Operation popRandomPendingOperation();
 		bool isEmpty();

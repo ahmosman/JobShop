@@ -6,27 +6,33 @@ void Schedule::createRandomSchedule()
 		Operation operation_to_add = queue.popRandomPendingOperation();
 		addOperationToSchedule(operation_to_add);
 	}
+	cout << '\n';
+}
+
+void Schedule::createScheduleByJobsOrder(vector<int> job_order)
+{
+	for (int job : job_order) {
+		Operation operation_to_add = queue.getNextOperationForJob(job);
+		addOperationToSchedule(operation_to_add);
+	}
 }
 
 Schedule::Schedule(Operations operations) : queue(operations)
 {
 	num_machines = operations.num_machines;
-	_schedule = vector<vector<Operation>>(operations.num_machines, vector<Operation>());
+	schedule = vector<vector<Operation>>(operations.num_machines, vector<Operation>());
+	current_job_time = vector<int>(operations.getJobsNum(), 0);
 }
 
 void Schedule::addOperationToSchedule(Operation operation)
 {
-	vector<Operation> schedule_machine = _schedule[operation.machine];
+	vector<Operation> schedule_machine = schedule[operation.machine];
 	bool operation_added = false;
-	int time_unit = 0;
+	int time_unit = getCurrentTimeForJob(operation.job_no);
 
 	for (time_unit; time_unit < schedule_machine.size(); time_unit++) {
 
-		if (time_unit == 4 && operation.job_no == 0) {
-			int gj = 1;
-		}
-
-		if (isMachineAvailable(time_unit, operation.machine) && !isJobRunning(time_unit, operation)) {
+		if (isMachineAvailable(time_unit, operation) && !isJobRunning(time_unit, operation)) {
 
 			addOperationInTimeUnit(operation, time_unit);
 			operation_added = true;
@@ -49,13 +55,11 @@ void Schedule::addOperationInTimeUnit(Operation operation, int time_unit)
 		makespan = end_time_operation;
 	}
 
-	if (isJobRunning(time_unit, operation)) {
-		int dd = 3;
+	for (int tu = time_unit; tu < end_time_operation; tu++) {
+		schedule[operation.machine][tu] = operation;
 	}
 
-	for (int tu = time_unit; tu < end_time_operation; tu++) {
-		_schedule[operation.machine][tu] = operation;
-	}
+	setCurrentTimeForJob(operation.job_no, end_time_operation);
 
 }
 
@@ -67,27 +71,27 @@ void Schedule::addNewTimeUnitsToSchedule(int num_units)
 		for (int j = 0; j < num_machines; j++) {
 			Operation empty_operation;
 			empty_operation._is_null = true;
-			_schedule[j].push_back(empty_operation);
+			schedule[j].push_back(empty_operation);
 		}
 	}
 
 }
 
-void Schedule::jobRunningInAnotherMachine(int time_unit, Operation operation)
+bool Schedule::isMachineAvailable(int time_unit, Operation operation)
 {
-
-}
-
-bool Schedule::isMachineAvailable(int time_unit, int machine_num)
-{
-	return _schedule[machine_num][time_unit]._is_null;
+	for (int tu = time_unit; tu < time_unit + operation.duration && tu < makespan; tu++) {
+		if (!schedule[operation.machine][tu]._is_null) {
+			return false;
+		}
+	}
+	return true;
 }
 
 bool Schedule::isJobRunning(int time_unit, Operation operation)
 {
 	for (int i = 0; i < num_machines; i++) {
 		for (int tu = time_unit; tu < time_unit + operation.duration && tu < makespan; tu++) {
-			if (_schedule[i][tu].job_no == operation.job_no && !_schedule[i][tu]._is_null) {
+			if (schedule[i][tu].job_no == operation.job_no && !schedule[i][tu]._is_null) {
 				return true;
 			}
 		}
@@ -98,7 +102,7 @@ bool Schedule::isJobRunning(int time_unit, Operation operation)
 
 void Schedule::printSchedule()
 {
-	for (const auto& row : _schedule) {
+	for (const auto& row : schedule) {
 		for (const auto& operation : row) {
 			if (!operation._is_null) {
 				cout << "\033[38;5;" << operation.job_no + 1 << "m"; //set color
@@ -114,4 +118,14 @@ void Schedule::printSchedule()
 
 	cout << "Makespan:" << makespan << "\n\n";
 
+}
+
+int Schedule::getCurrentTimeForJob(int job_no)
+{
+	return current_job_time[job_no];
+}
+
+void Schedule::setCurrentTimeForJob(int job_no, int current_time)
+{
+	current_job_time[job_no] = current_time;
 }

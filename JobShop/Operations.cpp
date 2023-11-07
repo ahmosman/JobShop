@@ -53,7 +53,20 @@ Operations::Operations(string filename)
     readInstanceFromFile(filename);
 }
 
+Operations::Operations(Operations& operations)
+{
+    _operations = operations._operations;
+    _reversed_operations = operations._reversed_operations;
+    num_jobs = operations.num_jobs;
+    num_machines = operations.num_machines;
+}
+
 void Operations::setJobLimit(int limit)
 {
     //TODO: Remove jobs in operations to match limit
+}
+
+int Operations::getJobsNum()
+{
+    return _operations.size();
 }

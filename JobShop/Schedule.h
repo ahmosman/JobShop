@@ -9,20 +9,22 @@ using namespace std;
 class Schedule
 {
 	protected:
-		vector<vector<Operation>> _schedule;
-
+		vector<int> current_job_time;
 	public:
+		vector<vector<Operation>> schedule;
 		int makespan, num_machines = 0;
 		OperationQueue queue;
 
 		void createRandomSchedule();
+		void createScheduleByJobsOrder(vector<int> job_order);
 		Schedule(Operations operations);
 		void addOperationInTimeUnit(Operation operation, int time_unit);
 		void addOperationToSchedule(Operation operation);
 		void addNewTimeUnitsToSchedule(int num_units);
-		void jobRunningInAnotherMachine(int time_unit, Operation operation);
-		bool isMachineAvailable(int time_unit, int machine_num);
+		bool isMachineAvailable(int time_unit, Operation operation);
 		bool isJobRunning(int time_unit, Operation operation);
 		void printSchedule();
+		int getCurrentTimeForJob(int job_no);
+		void setCurrentTimeForJob(int job_no, int current_time);
 };
 

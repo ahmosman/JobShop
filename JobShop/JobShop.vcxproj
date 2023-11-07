@@ -139,14 +139,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Jobs.cpp" />
+    <ClCompile Include="Generation.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OperationQueue.cpp" />
     <ClCompile Include="Operations.cpp" />
     <ClCompile Include="Schedule.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Jobs.h" />
+    <ClInclude Include="Generation.h" />
     <ClInclude Include="Operation.h" />
     <ClInclude Include="OperationQueue.h" />
     <ClInclude Include="Operations.h" />
