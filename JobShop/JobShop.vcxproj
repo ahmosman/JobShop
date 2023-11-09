@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="Generation.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Operation.cpp" />
     <ClCompile Include="OperationQueue.cpp" />
     <ClCompile Include="Operations.cpp" />
     <ClCompile Include="Schedule.cpp" />

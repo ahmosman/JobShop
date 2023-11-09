@@ -6,13 +6,12 @@ void Schedule::createRandomSchedule()
 		Operation operation_to_add = queue.popRandomPendingOperation();
 		addOperationToSchedule(operation_to_add);
 	}
-	cout << '\n';
 }
 
 void Schedule::createScheduleByJobsOrder(vector<int> job_order)
 {
 	for (int job : job_order) {
-		Operation operation_to_add = queue.getNextOperationForJob(job);
+		Operation operation_to_add = queue.popNextOperationForJob(job);
 		addOperationToSchedule(operation_to_add);
 	}
 }
@@ -20,15 +19,22 @@ void Schedule::createScheduleByJobsOrder(vector<int> job_order)
 Schedule::Schedule(Operations operations) : queue(operations)
 {
 	num_machines = operations.num_machines;
+	num_jobs = operations.getJobsNum();
 	schedule = vector<vector<Operation>>(operations.num_machines, vector<Operation>());
 	current_job_time = vector<int>(operations.getJobsNum(), 0);
+	performed_operations = vector<vector<bool>>(num_machines, vector<bool>(num_jobs, false));
 }
 
-void Schedule::addOperationToSchedule(Operation operation)
+void Schedule::addOperationToSchedule(Operation operation, int time_unit)
 {
 	vector<Operation> schedule_machine = schedule[operation.machine];
 	bool operation_added = false;
-	int time_unit = getCurrentTimeForJob(operation.job_no);
+
+	int current_job_time = getCurrentTimeForJob(operation.job_no);
+
+	if (!time_unit || time_unit < current_job_time) {
+		time_unit = current_job_time;
+	}
 
 	for (time_unit; time_unit < schedule_machine.size(); time_unit++) {
 
@@ -60,7 +66,7 @@ void Schedule::addOperationInTimeUnit(Operation operation, int time_unit)
 	}
 
 	setCurrentTimeForJob(operation.job_no, end_time_operation);
-
+	setPerformedOperation(operation);
 }
 
 
@@ -116,6 +122,7 @@ void Schedule::printSchedule()
 		cout << "\n";
 	}
 
+	cout << "\033[38;5;" << 7 << "m"; //set color
 	cout << "Makespan:" << makespan << "\n\n";
 
 }
@@ -128,4 +135,66 @@ int Schedule::getCurrentTimeForJob(int job_no)
 void Schedule::setCurrentTimeForJob(int job_no, int current_time)
 {
 	current_job_time[job_no] = current_time;
+}
+
+void Schedule::setPerformedOperation(Operation operation)
+{
+	performed_operations[operation.machine][operation.job_no] = true;
+}
+
+bool Schedule::isOperationPerformed(Operation operation)
+{
+	return performed_operations[operation.machine][operation.job_no];
+}
+
+int Schedule::getRandomIndex(int from, int to)
+{
+	random_device rd;
+	mt19937 gen(rd());
+	uniform_int_distribution<int> dis(from, to - 1);
+
+	return dis(gen);
+}
+
+void Schedule::addOperationsByParents(vector<Schedule> parents, int machine, int time_unit)
+{
+	int parent_index = getRandomIndex(0, 2);
+
+	Operation operation = parents[parent_index].schedule[machine][time_unit];
+
+	if (!operation._is_null) {
+
+		if (isOperationPerformed(operation)) {
+
+			int opposite_parent_index = parent_index == 0 ? 1 : 0;
+
+			operation = parents[opposite_parent_index].schedule[machine][time_unit];
+		}
+
+		if (!operation._is_null && !isOperationPerformed(operation)) {
+
+			Operation next_in_queue = queue.popNextOperationForJob(operation.job_no);
+
+			while (!checkSameOperations(operation, next_in_queue)) {
+				addOperationToSchedule(next_in_queue);
+				next_in_queue = queue.popNextOperationForJob(operation.job_no);
+			}
+
+			addOperationToSchedule(next_in_queue);
+		}
+	}
+}
+
+bool Schedule::checkSameOperations(Operation op1, Operation op2)
+{
+	return op1.duration == op2.duration && op1.machine == op2.machine && op1.job_no == op2.job_no;
+}
+
+void Schedule::addRandomPendingOperation(int machine, int time_unit)
+{
+	Operation operation = queue.popRandomPendingOperationByMachine(machine);
+
+	if (!operation._is_null) {
+		addOperationToSchedule(operation);
+	}
 }

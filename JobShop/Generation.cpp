@@ -3,23 +3,29 @@
 Schedule Generation::generateChild(Schedule parent1, Schedule parent2)
 {
     vector<Schedule> parents = { parent1, parent2 };
-    Schedule childSchedule(operations);
+    Schedule child_schedule(operations);
     int time_unit = 0;
 
-    while (!childSchedule.queue.isEmpty()) {
+    int min_makespan = min(parent1.makespan, parent2.makespan);
+
+    while (!child_schedule.queue.isEmpty() && time_unit < min_makespan) {
 
         for (int machine = 0; machine < operations.num_machines; machine++) {
             
-            int index = getRandomIndex(0, 2);
-
-            Operation parent_inherit_operation = parents[index].schedule[machine][time_unit];
-
+            if (shouldMutate()) {
+                child_schedule.addRandomPendingOperation(machine, time_unit);
+            }
+            else {
+                child_schedule.addOperationsByParents(parents, machine, time_unit);
+            }
         }
 
         time_unit++;
     }
 
-    return childSchedule;
+    child_schedule.createRandomSchedule();
+
+    return child_schedule;
 }
 
 Generation::Generation(Operations operations, int population, float mutation_rate): operations(operations)
@@ -38,14 +44,4 @@ bool Generation::shouldMutate()
     float random_value = dis(gen);
 
     return random_value < mutation_rate;
-}
-
-
-int Generation::getRandomIndex(int from, int to)
-{
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<int> dis(from, to - 1);
-
-    return dis(gen);
 }
