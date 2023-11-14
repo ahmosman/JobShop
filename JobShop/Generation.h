@@ -11,12 +11,13 @@ class Generation
 
 	public:
 		float mutation_rate;
-		int population;
+		int population, crossovers;
 		Schedule generateChild(Schedule parent1, Schedule parent2);
-		Generation(Operations operations, int population, float mutation_rate);
+		Generation(Operations operations, int population, int crossovers, float mutation_rate);
 		bool shouldMutate();
+		void optimize();
 		int getRandomIndex(int from, int to);
-		bool checkSameOperations(Operation op1, Operation op2);
-		void addOperationsByParents(vector<Schedule> parents);
+		vector<Schedule> getChildrenFromTournament(vector<Schedule> generation);
+		bool compareSchedules(const Schedule& schedule1, const Schedule& schedule2);
 };
 
