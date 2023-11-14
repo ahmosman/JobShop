@@ -21,34 +21,18 @@ Schedule::Schedule(Operations operations) : queue(operations)
 	num_machines = operations.num_machines;
 	num_jobs = operations.getJobsNum();
 	schedule = vector<vector<Operation>>(operations.num_machines, vector<Operation>());
-	current_job_time = vector<int>(operations.getJobsNum(), 0);
+	recent_jobs_operations = vector<Operation>(operations.getJobsNum(), Operation{});
 	performed_operations = vector<vector<bool>>(num_machines, vector<bool>(num_jobs, false));
 }
 
-void Schedule::addOperationToSchedule(Operation operation, int time_unit)
+void Schedule::addOperationToSchedule(Operation operation)
 {
-	vector<Operation> schedule_machine = schedule[operation.machine];
-	bool operation_added = false;
-
-	int current_job_time = getCurrentTimeForJob(operation.job_no);
-
-	if (!time_unit || time_unit < current_job_time) {
-		time_unit = current_job_time;
-	}
-
-	for (time_unit; time_unit < schedule_machine.size(); time_unit++) {
-
-		if (isMachineAvailable(time_unit, operation) && !isJobRunning(time_unit, operation)) {
-
-			addOperationInTimeUnit(operation, time_unit);
-			operation_added = true;
-			break;
-		}
-	}
+	bool operation_added = insertOperationInEmptySpace(operation);
 
 	if (!operation_added) {
-		addOperationInTimeUnit(operation, time_unit);
+		insertOperationInEnd(operation);
 	}
+
 }
 
 void Schedule::addOperationInTimeUnit(Operation operation, int time_unit)
@@ -65,7 +49,7 @@ void Schedule::addOperationInTimeUnit(Operation operation, int time_unit)
 		schedule[operation.machine][tu] = operation;
 	}
 
-	setCurrentTimeForJob(operation.job_no, end_time_operation);
+	//setCurrentTimeForJob(operation.job_no, end_time_operation);
 	setPerformedOperation(operation);
 }
 
@@ -76,7 +60,7 @@ void Schedule::addNewTimeUnitsToSchedule(int num_units)
 	for (int i = 0; i < num_units; i++) {
 		for (int j = 0; j < num_machines; j++) {
 			Operation empty_operation;
-			empty_operation._is_null = true;
+			empty_operation.is_empty = true;
 			schedule[j].push_back(empty_operation);
 		}
 	}
@@ -86,7 +70,7 @@ void Schedule::addNewTimeUnitsToSchedule(int num_units)
 bool Schedule::isMachineAvailable(int time_unit, Operation operation)
 {
 	for (int tu = time_unit; tu < time_unit + operation.duration && tu < makespan; tu++) {
-		if (!schedule[operation.machine][tu]._is_null) {
+		if (!schedule[operation.machine][tu].is_empty) {
 			return false;
 		}
 	}
@@ -97,7 +81,7 @@ bool Schedule::isJobRunning(int time_unit, Operation operation)
 {
 	for (int i = 0; i < num_machines; i++) {
 		for (int tu = time_unit; tu < time_unit + operation.duration && tu < makespan; tu++) {
-			if (schedule[i][tu].job_no == operation.job_no && !schedule[i][tu]._is_null) {
+			if (schedule[i][tu].job_no == operation.job_no && !schedule[i][tu].is_empty) {
 				return true;
 			}
 		}
@@ -109,16 +93,33 @@ bool Schedule::isJobRunning(int time_unit, Operation operation)
 void Schedule::printSchedule()
 {
 	for (const auto& row : schedule) {
+		
+		int fill_line = makespan;
+
 		for (const auto& operation : row) {
-			if (!operation._is_null) {
-				cout << "\033[38;5;" << operation.job_no + 1 << "m"; //set color
-				cout << operation.job_no << " ";
-			}
-			else {
-				cout << "\033[38;5;" << 7 << "m"; //set color
-				cout << "- ";
+
+			int count = operation.duration;
+
+			while (count) {
+				if (!operation.is_empty) {
+					cout << "\033[38;5;" << operation.job_no + 1 << "m"; //set color
+					cout << operation.job_no << " ";
+				}
+				else {
+					cout << "\033[38;5;" << 7 << "m"; //set color
+					cout << "- ";
+				}
+				fill_line--;
+				count--;
 			}
 		}
+
+		while (fill_line) {
+			cout << "\033[38;5;" << 7 << "m"; //set color
+			cout << "- ";
+			fill_line--;
+		}
+
 		cout << "\n";
 	}
 
@@ -127,14 +128,14 @@ void Schedule::printSchedule()
 
 }
 
-int Schedule::getCurrentTimeForJob(int job_no)
+Operation Schedule::getRecentJobOperation(int job_no)
 {
-	return current_job_time[job_no];
+	return recent_jobs_operations[job_no];
 }
 
-void Schedule::setCurrentTimeForJob(int job_no, int current_time)
+void Schedule::setRecentJobOperation(Operation operation)
 {
-	current_job_time[job_no] = current_time;
+	recent_jobs_operations[operation.job_no] = operation;
 }
 
 void Schedule::setPerformedOperation(Operation operation)
@@ -162,7 +163,7 @@ void Schedule::addOperationsByParents(vector<Schedule> parents, int machine, int
 
 	Operation operation = parents[parent_index].schedule[machine][time_unit];
 
-	if (!operation._is_null) {
+	if (!operation.is_empty) {
 
 		if (isOperationPerformed(operation)) {
 
@@ -171,7 +172,7 @@ void Schedule::addOperationsByParents(vector<Schedule> parents, int machine, int
 			operation = parents[opposite_parent_index].schedule[machine][time_unit];
 		}
 
-		if (!operation._is_null && !isOperationPerformed(operation)) {
+		if (!operation.is_empty && !isOperationPerformed(operation)) {
 
 			Operation next_in_queue = queue.popNextOperationForJob(operation.job_no);
 
@@ -194,7 +195,139 @@ void Schedule::addRandomPendingOperation(int machine, int time_unit)
 {
 	Operation operation = queue.popRandomPendingOperationByMachine(machine);
 
-	if (!operation._is_null) {
+	if (!operation.is_empty) {
 		addOperationToSchedule(operation);
 	}
+}
+
+bool Schedule::insertOperationInEmptySpace(Operation operation)
+{
+	Operation recent_operation = getRecentJobOperation(operation.job_no);
+
+	vector<Operation> schedule_operations = schedule[operation.machine];
+
+	bool found_empty_operation = false;
+
+	int empty_operation_index = 0;
+
+	for (empty_operation_index; empty_operation_index < schedule_operations.size(); empty_operation_index++) {
+
+		Operation op = schedule_operations[empty_operation_index];
+
+		if (op.is_empty && op.duration >= operation.duration && op.end_time - operation.duration > recent_operation.end_time) {
+			found_empty_operation = true;
+			break;
+		}
+	}
+
+	if (found_empty_operation) {
+		overrideEmptyOperation(empty_operation_index, operation);
+	}
+
+	return found_empty_operation;
+}
+
+void Schedule::overrideEmptyOperation(int index, Operation operation)
+{
+
+	Operation override_operation = schedule[operation.machine][index];
+
+	if (override_operation.duration > operation.duration) {
+
+		Operation recent_operation = getRecentJobOperation(operation.job_no);
+
+		// Dodawanie pustej operacji przed wprowadzan¹ operacj¹
+		if (recent_operation.end_time > override_operation.start_time) {
+
+			Operation new_empty_operation;
+			new_empty_operation.is_empty = true;
+			new_empty_operation.duration = recent_operation.end_time - override_operation.start_time + 1;
+			new_empty_operation.start_time = override_operation.start_time;
+			new_empty_operation.end_time = recent_operation.end_time;
+
+			schedule[operation.machine].insert(schedule[operation.machine].begin() + index - 1, new_empty_operation);
+			index++;
+
+			override_operation.start_time = new_empty_operation.end_time + 1;
+			override_operation.duration = override_operation.end_time - override_operation.start_time + 1;
+		}
+
+		// Dodawanie pustej operacji przed wprowadzan¹ operacj¹
+		if (override_operation.duration > operation.duration) {
+			Operation new_empty_operation;
+			new_empty_operation.is_empty = true;
+			new_empty_operation.duration = override_operation.duration - operation.duration;
+			new_empty_operation.start_time = override_operation.start_time + operation.duration;
+			new_empty_operation.end_time = new_empty_operation.start_time + new_empty_operation.duration - 1;
+
+			schedule[operation.machine].insert(schedule[operation.machine].begin() + index + 1, new_empty_operation);
+			index++;
+		}
+
+	}
+
+	operation.is_empty = false;
+	operation.start_time = override_operation.start_time;
+	operation.end_time = operation.start_time + operation.duration - 1;
+
+	schedule[operation.machine][index] = operation;
+
+	setRecentJobOperation(operation);
+}
+
+void Schedule::insertOperationInEnd(Operation operation)
+{
+	Operation recent_job_operation = getRecentJobOperation(operation.job_no);
+
+	if (schedule[operation.machine].empty()) {
+
+		if (recent_job_operation.duration > 0)
+		{
+			Operation new_empty_operation;
+			new_empty_operation.is_empty = true;
+			new_empty_operation.start_time = 0;
+			new_empty_operation.end_time = recent_job_operation.end_time;
+			new_empty_operation.duration = new_empty_operation.end_time - new_empty_operation.start_time + 1;
+			schedule[operation.machine].push_back(new_empty_operation);
+
+
+			operation.start_time = recent_job_operation.end_time + 1;
+		}
+		else {
+
+			operation.start_time = 0;
+		}
+
+	}
+	else {
+		Operation last_machine_operaton = schedule[operation.machine].back();
+
+		if (recent_job_operation.end_time > last_machine_operaton.end_time) {
+
+			Operation new_empty_operation;
+			new_empty_operation.is_empty = true;
+			new_empty_operation.start_time = last_machine_operaton.end_time + 1;
+			new_empty_operation.end_time = recent_job_operation.end_time;
+			new_empty_operation.duration = new_empty_operation.end_time - new_empty_operation.start_time + 1;
+
+			schedule[operation.machine].push_back(new_empty_operation);
+			last_machine_operaton = new_empty_operation;
+		}
+
+		operation.start_time = last_machine_operaton.end_time + 1;
+	}
+
+	operation.end_time = operation.start_time + operation.duration - 1;
+	operation.is_empty = false;
+
+	schedule[operation.machine].push_back(operation);
+
+	setRecentJobOperation(operation);
+
+	int potential_makespan = operation.end_time + 1;
+
+	if (potential_makespan > makespan) {
+		makespan = potential_makespan;
+	}
+
 }

@@ -53,7 +53,7 @@ Operation OperationQueue::popRandomPendingOperationByMachine(int machine)
     vector<Operation> pending_machine_operations;
 
     Operation empty_operation;
-    empty_operation._is_null = true;
+    empty_operation.is_empty = true;
     pending_machine_operations.push_back(empty_operation);
 
     for (vector<Operation> &job_operations : _queue) {
@@ -74,7 +74,7 @@ Operation OperationQueue::popRandomPendingOperationByMachine(int machine)
 
     Operation random_operation = pending_machine_operations.front();
 
-    if (!random_operation._is_null) {
+    if (!random_operation.is_empty) {
        _queue[random_operation.job_no].pop_back();
     }
 

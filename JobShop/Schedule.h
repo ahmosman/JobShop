@@ -10,7 +10,7 @@ using namespace std;
 class Schedule
 {
 	protected:
-		vector<int> current_job_time;
+		vector<Operation> recent_jobs_operations;
 		void addOperationInTimeUnit(Operation operation, int time_unit);
 		void addNewTimeUnitsToSchedule(int num_units);
 
@@ -23,17 +23,21 @@ class Schedule
 		void createRandomSchedule();
 		void createScheduleByJobsOrder(vector<int> job_order);
 		Schedule(Operations operations);
-		void addOperationToSchedule(Operation operation, int time_unit = 0);
+		void addOperationToSchedule(Operation operation);
 		bool isMachineAvailable(int time_unit, Operation operation);
 		bool isJobRunning(int time_unit, Operation operation);
 		void printSchedule();
-		int getCurrentTimeForJob(int job_no);
-		void setCurrentTimeForJob(int job_no, int current_time);
+		Operation getRecentJobOperation(int job_no);
+		void setRecentJobOperation(Operation operation);
 		bool isOperationPerformed(Operation operation);
 		int getRandomIndex(int from, int to);
 		void addOperationsByParents(vector<Schedule> parents, int machine, int time_unit);
 		bool checkSameOperations(Operation op1, Operation op2);
 		void addRandomPendingOperation(int machine, int time_unit);
+		bool insertOperationInEmptySpace(Operation operation);
+		void overrideEmptyOperation(int empty_operation_index, Operation operation);
+		void insertOperationInEnd(Operation operation);
+		Operation getInsertedOperation(Operation operation);
 		void setPerformedOperation(Operation operation);
 };
 
