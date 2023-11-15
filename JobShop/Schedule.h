@@ -27,6 +27,7 @@ class Schedule
 		bool isMachineAvailable(int time_unit, Operation operation);
 		bool isJobRunning(int time_unit, Operation operation);
 		void printSchedule();
+		void printResult();
 		Operation getRecentJobOperation(int job_no);
 		void setRecentJobOperation(Operation operation);
 		bool isOperationPerformed(Operation operation);
@@ -39,5 +40,6 @@ class Schedule
 		void insertOperationInEnd(Operation operation);
 		Operation getInsertedOperation(Operation operation);
 		void setPerformedOperation(Operation operation);
+		vector<vector<Operation>> getScheduleQueue();
 };
 

@@ -8,10 +8,8 @@ using namespace std;
 
 class OperationQueue
 {
-	vector<vector<Operation>> _queue;
-
 	public:
-
+		vector<vector<Operation>> _queue;
 		OperationQueue(Operations operations);
 		int getRandomIndex(int from, int to);
 		Operation getNextOperationForJob(int job_no);

@@ -45,16 +45,14 @@ Operation OperationQueue::popRandomPendingOperation()
     Operation picked_operation = _queue[random_index].back();
     _queue[random_index].pop_back();
 
+   //cout << picked_operation.job_no << '\t';
+
     return picked_operation;
 }
 
 Operation OperationQueue::popRandomPendingOperationByMachine(int machine)
 {
     vector<Operation> pending_machine_operations;
-
-    Operation empty_operation;
-    empty_operation.is_empty = true;
-    pending_machine_operations.push_back(empty_operation);
 
     for (vector<Operation> &job_operations : _queue) {
 

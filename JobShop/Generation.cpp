@@ -4,23 +4,40 @@ Schedule Generation::generateChild(Schedule parent1, Schedule parent2)
 {
     vector<Schedule> parents = { parent1, parent2 };
     Schedule child_schedule(operations);
-    int time_unit = 0;
+    
+    vector<vector<Operation>> schedule_queue_1 = parent1.getScheduleQueue();
+    vector<vector<Operation>> schedule_queue_2 = parent2.getScheduleQueue();
 
-    int min_makespan = min(parent1.makespan, parent2.makespan);
 
-    while (!child_schedule.queue.isEmpty() && time_unit < min_makespan) {
+    while (!child_schedule.queue.isEmpty()) {
 
         for (int machine = 0; machine < operations.num_machines; machine++) {
             
+            Operation next_operation;
+
             if (shouldMutate()) {
-                child_schedule.addRandomPendingOperation(machine, time_unit);
+
+                next_operation = child_schedule.queue.popRandomPendingOperationByMachine(machine);
+
             }
             else {
-                child_schedule.addOperationsByParents(parents, machine, time_unit);
-            }
-        }
 
-        time_unit++;
+                int pick_parent_1 = getRandomIndex(0, 2);
+                
+                if (pick_parent_1) {
+                    next_operation = schedule_queue_1[machine].front();
+                }
+                else {
+                    next_operation = schedule_queue_2[machine].front();
+                }
+            }
+
+            child_schedule.addOperationToSchedule(next_operation);
+
+            removeOperation(child_schedule.queue._queue[next_operation.job_no], next_operation);
+            removeOperation(schedule_queue_1[machine], next_operation);
+            removeOperation(schedule_queue_2[machine], next_operation);
+        }
     }
 
     child_schedule.createRandomSchedule();
@@ -151,4 +168,19 @@ vector<Schedule> Generation::getChildrenFromTournament(vector<Schedule> generati
     }
 
     return children;
+}
+
+void Generation::removeOperation(vector<Operation> &remove_from, Operation operation)
+{
+    const auto iterator = find_if(remove_from.begin(), remove_from.end(),
+        [this, &operation](const Operation& op) { return checkSameOperations(op, operation); });
+
+    if (iterator != remove_from.end()) {
+        remove_from.erase(iterator);
+    }
+}
+
+bool Generation::checkSameOperations(Operation op1, Operation op2)
+{
+    return op1.duration == op2.duration && op1.machine == op2.machine && op1.job_no == op2.job_no;
 }

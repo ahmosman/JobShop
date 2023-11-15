@@ -2,9 +2,11 @@
 
 void Schedule::createRandomSchedule()
 {
-	while (!queue.isEmpty()) { //TODO: Nie dodaje siê ostatnia operacja i ostatni proces Ÿle sie wykonuje
+	while (!queue.isEmpty()) {
 		Operation operation_to_add = queue.popRandomPendingOperation();
 		addOperationToSchedule(operation_to_add);
+		//cout << "\x1B[2J\x1B[H";
+		//printSchedule();
 	}
 }
 
@@ -20,8 +22,8 @@ Schedule::Schedule(Operations operations) : queue(operations)
 {
 	num_machines = operations.num_machines;
 	num_jobs = operations.getJobsNum();
-	schedule = vector<vector<Operation>>(operations.num_machines, vector<Operation>());
-	recent_jobs_operations = vector<Operation>(operations.getJobsNum(), Operation{});
+	schedule = vector<vector<Operation>>(num_machines, vector<Operation>());
+	recent_jobs_operations = vector<Operation>(num_jobs, Operation{});
 	performed_operations = vector<vector<bool>>(num_machines, vector<bool>(num_jobs, false));
 }
 
@@ -114,7 +116,7 @@ void Schedule::printSchedule()
 			}
 		}
 
-		while (fill_line) {
+		while (fill_line > 0) {
 			cout << "\033[38;5;" << 7 << "m"; //set color
 			cout << "- ";
 			fill_line--;
@@ -124,6 +126,13 @@ void Schedule::printSchedule()
 	}
 
 	cout << "\033[38;5;" << 7 << "m"; //set color
+
+}
+
+void Schedule::printResult()
+{
+	cout << "\n";
+	printSchedule();
 	cout << "Makespan:" << makespan << "\n\n";
 
 }
@@ -141,6 +150,24 @@ void Schedule::setRecentJobOperation(Operation operation)
 void Schedule::setPerformedOperation(Operation operation)
 {
 	performed_operations[operation.machine][operation.job_no] = true;
+}
+
+vector<vector<Operation>> Schedule::getScheduleQueue()
+{
+	vector<vector<Operation>> schedule_queue = vector<vector<Operation>>(num_machines, vector<Operation>());
+
+	for (int machine = 0; machine < schedule.size(); machine++) {
+
+		vector<Operation> machine_operations = schedule[machine];
+
+		for (int operation = 0; operation < machine_operations.size(); operation++) {
+			if (!machine_operations[operation].is_empty) {
+				schedule_queue[machine].push_back(machine_operations[operation]);
+			}
+		}
+	}
+
+	return schedule_queue;
 }
 
 bool Schedule::isOperationPerformed(Operation operation)
@@ -214,7 +241,7 @@ bool Schedule::insertOperationInEmptySpace(Operation operation)
 
 		Operation op = schedule_operations[empty_operation_index];
 
-		if (op.is_empty && op.duration >= operation.duration && op.end_time - operation.duration > recent_operation.end_time) {
+		if (op.is_empty && op.duration >= operation.duration && op.end_time - operation.duration >= recent_operation.end_time) {
 			found_empty_operation = true;
 			break;
 		}
@@ -237,15 +264,16 @@ void Schedule::overrideEmptyOperation(int index, Operation operation)
 		Operation recent_operation = getRecentJobOperation(operation.job_no);
 
 		// Dodawanie pustej operacji przed wprowadzan¹ operacj¹
-		if (recent_operation.end_time > override_operation.start_time) {
+		if (recent_operation.end_time >= override_operation.start_time) {
 
 			Operation new_empty_operation;
 			new_empty_operation.is_empty = true;
+			new_empty_operation.machine = override_operation.machine;
 			new_empty_operation.duration = recent_operation.end_time - override_operation.start_time + 1;
 			new_empty_operation.start_time = override_operation.start_time;
 			new_empty_operation.end_time = recent_operation.end_time;
 
-			schedule[operation.machine].insert(schedule[operation.machine].begin() + index - 1, new_empty_operation);
+			schedule[operation.machine].insert(schedule[operation.machine].begin() + index, new_empty_operation);
 			index++;
 
 			override_operation.start_time = new_empty_operation.end_time + 1;
@@ -256,12 +284,12 @@ void Schedule::overrideEmptyOperation(int index, Operation operation)
 		if (override_operation.duration > operation.duration) {
 			Operation new_empty_operation;
 			new_empty_operation.is_empty = true;
+			new_empty_operation.machine = override_operation.machine;
 			new_empty_operation.duration = override_operation.duration - operation.duration;
 			new_empty_operation.start_time = override_operation.start_time + operation.duration;
-			new_empty_operation.end_time = new_empty_operation.start_time + new_empty_operation.duration - 1;
+			new_empty_operation.end_time = override_operation.end_time;
 
 			schedule[operation.machine].insert(schedule[operation.machine].begin() + index + 1, new_empty_operation);
-			index++;
 		}
 
 	}
@@ -285,6 +313,7 @@ void Schedule::insertOperationInEnd(Operation operation)
 		{
 			Operation new_empty_operation;
 			new_empty_operation.is_empty = true;
+			new_empty_operation.machine = operation.machine;
 			new_empty_operation.start_time = 0;
 			new_empty_operation.end_time = recent_job_operation.end_time;
 			new_empty_operation.duration = new_empty_operation.end_time - new_empty_operation.start_time + 1;

@@ -18,6 +18,8 @@ class Generation
 		void optimize();
 		int getRandomIndex(int from, int to);
 		vector<Schedule> getChildrenFromTournament(vector<Schedule> generation);
+		void removeOperation(vector<Operation> &remove_from, Operation operation);
+		bool checkSameOperations(Operation op1, Operation op2);
 		bool compareSchedules(const Schedule& schedule1, const Schedule& schedule2);
 };
 
