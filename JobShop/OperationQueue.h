@@ -16,6 +16,7 @@ class OperationQueue
 		Operation popNextOperationForJob(int job_no);
 		void createOperationQueue(Operations operations);
 		Operation popRandomPendingOperation();
+		bool anyPendingOperationByMachine(int machine);
 		Operation popRandomPendingOperationByMachine(int machine_number);
 		bool isEmpty();
 };

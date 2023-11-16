@@ -13,30 +13,38 @@ Schedule Generation::generateChild(Schedule parent1, Schedule parent2)
 
         for (int machine = 0; machine < operations.num_machines; machine++) {
             
-            Operation next_operation;
+            if (child_schedule.queue.anyPendingOperationByMachine(machine)) {
 
-            if (shouldMutate()) {
+                Operation next_operation;
 
-                next_operation = child_schedule.queue.popRandomPendingOperationByMachine(machine);
+                if (shouldMutate()) {
 
-            }
-            else {
+                    next_operation = child_schedule.queue.popRandomPendingOperationByMachine(machine);
 
-                int pick_parent_1 = getRandomIndex(0, 2);
-                
-                if (pick_parent_1) {
-                    next_operation = schedule_queue_1[machine].front();
                 }
                 else {
-                    next_operation = schedule_queue_2[machine].front();
+
+                    int pick_parent_1 = getRandomIndex(0, 2);
+
+                    if (pick_parent_1) {
+                        next_operation = schedule_queue_1[machine].front();
+                    }
+                    else {
+                        next_operation = schedule_queue_2[machine].front();
+                    }
                 }
-            }
 
-            child_schedule.addOperationToSchedule(next_operation);
+                if (checkSameOperations(next_operation, child_schedule.queue.getNextOperationForJob(next_operation.job_no))) {
 
-            removeOperation(child_schedule.queue._queue[next_operation.job_no], next_operation);
-            removeOperation(schedule_queue_1[machine], next_operation);
-            removeOperation(schedule_queue_2[machine], next_operation);
+                    child_schedule.addOperationToSchedule(next_operation);
+
+                    removeOperation(child_schedule.queue._queue[next_operation.job_no], next_operation);
+                    removeOperation(schedule_queue_1[machine], next_operation);
+                    removeOperation(schedule_queue_2[machine], next_operation);
+                }
+
+
+            }  
         }
     }
 
@@ -66,7 +74,7 @@ bool Generation::shouldMutate()
 
 void Generation::optimize()
 {
-    int min_makespan = 99999;
+    int min_makespan = 99999999999;
 
     vector<Schedule> generation;
     for (int i = 0; i < population; i++) {
@@ -78,19 +86,6 @@ void Generation::optimize()
     while (true) {
 
         vector<Schedule> children = getChildrenFromTournament(generation);
-
-        //for (int c = 0; c < crossovers; c++) {
-
-        //    int parent_index_1 = getRandomIndex(0, generation.size());
-        //    int parent_index_2 = getRandomIndex(0, generation.size());
-
-        //    while (parent_index_1 == parent_index_2) {
-        //        parent_index_2 = getRandomIndex(0, generation.size());
-        //    }
-
-        //    children.push_back(generateChild(generation[parent_index_1], generation[parent_index_2]));
-
-        //}
         
         while (!children.empty()) {
             generation.push_back(children.back());

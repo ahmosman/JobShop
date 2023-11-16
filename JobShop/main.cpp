@@ -10,17 +10,19 @@ using namespace std;
 
 int main() {
 
-    int population = 200;
-    int crossovers = 20;
-    float mutation_rate = 0.5;
+    int population = 50;
+    int crossovers = 10;
+    float mutation_rate = 0.4;
 
+    Operations op("instance_fs2.txt");
     //Operations op("instance_test.txt");
-    Operations op("instance_test.txt");
-
-    Schedule sch1(op), sch2(op), sch3(op);
 
 
     Generation gen(op, population, crossovers, mutation_rate);
+
+    /*
+
+    Schedule sch1(op), sch2(op), sch3(op);
 
     sch1.createRandomSchedule();
 
@@ -32,10 +34,12 @@ int main() {
     sch1.printResult();
     sch2.printResult();
 
-    //Schedule child = gen.generateChild(sch1, sch2);
+    Schedule child = gen.generateChild(sch1, sch2);
 
 
-    //child.printSchedule();
-    //gen.optimize();
+    child.printResult();
+
+    */
+    gen.optimize();
     return 0;
 }

@@ -50,6 +50,23 @@ Operation OperationQueue::popRandomPendingOperation()
     return picked_operation;
 }
 
+bool OperationQueue::anyPendingOperationByMachine(int machine)
+{
+    for (vector<Operation>& job_operations : _queue) {
+
+        if (!job_operations.empty()) {
+
+            Operation next_operation = job_operations.back();
+
+            if (next_operation.machine == machine) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 Operation OperationQueue::popRandomPendingOperationByMachine(int machine)
 {
     vector<Operation> pending_machine_operations;
@@ -71,10 +88,6 @@ Operation OperationQueue::popRandomPendingOperationByMachine(int machine)
     shuffle(pending_machine_operations.begin(), pending_machine_operations.end(), rng);
 
     Operation random_operation = pending_machine_operations.front();
-
-    if (!random_operation.is_empty) {
-       _queue[random_operation.job_no].pop_back();
-    }
 
     return random_operation;
 }
