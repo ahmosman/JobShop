@@ -14,8 +14,8 @@ int main() {
     int crossovers = 10;
     float mutation_rate = 0.4;
 
-    Operations op("instance_fs2.txt");
-    //Operations op("instance_test.txt");
+    //Operations op("instance_fs2.txt");
+    Operations op("instance_some.txt");
 
 
     Generation gen(op, population, crossovers, mutation_rate);
