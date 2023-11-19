@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <thread>
 #include "Schedule.h"
 #include "Generation.h"
 
@@ -14,11 +15,13 @@ int main() {
     int crossovers = 10;
     float mutation_rate = 0.4;
 
-    //Operations op("instance_fs2.txt");
+   // Operations op("instance_fs2.txt");
     Operations op("instance_some.txt");
 
 
-    Generation gen(op, population, crossovers, mutation_rate);
+    Generation gen1(op, population, crossovers, mutation_rate);
+    Operations op2 = op.getResizedOperations(5);
+    Generation gen2(op2, population, crossovers, mutation_rate);
 
     /*
 
@@ -40,6 +43,12 @@ int main() {
     child.printResult();
 
     */
-    gen.optimize();
+    Schedule optimized2 = gen2.getOptimizedSchedule(5);
+    optimized2.printJobTimes();
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+
+    //Schedule optimized2 = gen2.getOptimizedSchedule(10);
+    //optimized2.printJobTimes();
+ 
     return 0;
 }

@@ -237,6 +237,33 @@ void Schedule::printSchedule()
 
 }
 
+void Schedule::printJobTimes()
+{
+	cout << makespan << '\n';
+
+	vector<vector<int>> schedule_job_times = vector<vector<int>>(num_jobs, vector<int>(0));
+
+	for (const auto& machine_times : schedule) {
+
+		for (const auto& operation : machine_times) {
+
+
+			if (!operation.is_empty) {
+
+				auto it = lower_bound(schedule_job_times[operation.job_no].begin(), schedule_job_times[operation.job_no].end(), operation.start_time);
+				schedule_job_times[operation.job_no].insert(it, operation.start_time);
+			}
+		}
+	}
+
+	for (const auto& job_times : schedule_job_times) {
+		for (const auto& time : job_times) {
+			cout << time << ' ';
+		}
+		cout << '\n';
+	}
+}
+
 void Schedule::printResult()
 {
 	cout << "\n";

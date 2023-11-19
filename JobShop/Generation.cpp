@@ -72,9 +72,13 @@ bool Generation::shouldMutate()
     return random_value < mutation_rate;
 }
 
-void Generation::optimize()
+Schedule Generation::getOptimizedSchedule(int time_seconds)
 {
     int min_makespan = 99999999999;
+
+    auto duration = std::chrono::seconds(time_seconds);
+
+    auto start_time = std::chrono::steady_clock::now();
 
     vector<Schedule> generation;
     for (int i = 0; i < population; i++) {
@@ -83,7 +87,7 @@ void Generation::optimize()
         generation.push_back(schedule);
     }
 
-    while (true) {
+    while (std::chrono::steady_clock::now() - start_time < duration) {
 
         vector<Schedule> children = getChildrenFromTournament(generation);
         
@@ -100,23 +104,18 @@ void Generation::optimize()
         vector<Schedule> resized_generation(generation.begin(), generation.begin() + population);
         generation = resized_generation;
         
-
-
-
         int curr_makespan = generation[0].makespan;
         if (curr_makespan < min_makespan) {
             min_makespan = curr_makespan;
         }
+
         cout << "\x1B[2J\x1B[H";
-        cout << "Current makespans: ";
-        for (int i = 0; i < generation.size(); i++) {
-            cout << generation[i].makespan << "\t";
-        }
-        cout << '\n';
-        cout << "Min makespan: " << min_makespan;
+        printCurrentMakespans(generation);
     }
 
-    
+    cout << "\x1B[2J\x1B[H";
+
+    return generation[0];
 
 }
 
@@ -179,3 +178,14 @@ bool Generation::checkSameOperations(Operation op1, Operation op2)
 {
     return op1.duration == op2.duration && op1.machine == op2.machine && op1.job_no == op2.job_no;
 }
+
+void Generation::printCurrentMakespans(vector<Schedule> generation)
+{
+    cout << "Current makespans: ";
+    for (int i = 0; i < generation.size(); i++) {
+        cout << generation[i].makespan << "\t";
+    }
+    cout << '\n';
+    cout << "Min makespan: " << generation[0].makespan;
+}
+

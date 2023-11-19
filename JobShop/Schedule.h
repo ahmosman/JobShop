@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <random>
+#include <algorithm>
 #include "Operation.h"
 #include "OperationQueue.h"
 
@@ -27,6 +28,7 @@ class Schedule
 		void addOperationToSchedule(Operation operation);
 		vector<vector<Operation>> getScheduleQueue();
 		void printSchedule();
+		void printJobTimes();
 		void printResult();
 };
 

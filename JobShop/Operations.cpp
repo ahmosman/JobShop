@@ -53,7 +53,7 @@ Operations::Operations(string filename)
     readInstanceFromFile(filename);
 }
 
-Operations::Operations(Operations& operations)
+Operations::Operations(const Operations& operations)
 {
     _operations = operations._operations;
     _reversed_operations = operations._reversed_operations;
@@ -61,9 +61,17 @@ Operations::Operations(Operations& operations)
     num_machines = operations.num_machines;
 }
 
-void Operations::setJobLimit(int limit)
+Operations Operations::getResizedOperations(int limit)
 {
-    //TODO: Remove jobs in operations to match limit
+    vector<vector<Operation>> resized_operations(_operations.begin(), _operations.begin() + limit);
+
+    Operations operations(*this);
+    operations.num_jobs = limit;
+    operations._operations = resized_operations;
+    operations._reversed_operations = operations.getReversedOperations(_operations);
+
+
+    return operations;
 }
 
 int Operations::getJobsNum()
