@@ -1,7 +1,45 @@
 #include "Operations.h"
 using namespace std;
 
-void Operations::readInstanceFromFile(string filename)
+void Operations::readInstanceTaillard()
+{
+    ifstream file(filename);
+    if (!file.is_open()) {
+        cerr << "Nie uda³o siê otworzyæ pliku." << endl;
+        exit(0);
+    }
+
+    file >> num_jobs >> num_machines;
+
+    _operations = vector<vector<Operation>>(num_jobs, vector<Operation>());
+
+    operations_duration = vector<vector<int>>(num_jobs, vector<int>(num_machines));
+    operations_machines = vector<vector<int>>(num_jobs, vector<int>(num_machines));
+
+    for (int i = 0; i < num_jobs; ++i) {
+        for (int j = 0; j < num_machines; ++j) {
+            file >> operations_duration[i][j];
+            Operation operation;
+            operation.duration = operations_duration[i][j];
+            operation.job_no = i;
+            operation.is_empty = false;
+            _operations[i].push_back(operation);
+        }
+    }
+
+    for (int i = 0; i < num_jobs; ++i) {
+        for (int j = 0; j < num_machines; ++j) {
+            file >> operations_machines[i][j];
+            _operations[i][j].machine = operations_machines[i][j] - 1;
+        }
+    }
+
+    _reversed_operations = getReversedOperations(_operations);
+
+    file.close();
+}
+
+void Operations::readInstanceBeasley()
 {
     ifstream file(filename);
     if (!file.is_open()) {
@@ -50,7 +88,7 @@ vector<vector<Operation>> Operations::getReversedOperations(vector<vector<Operat
 
 Operations::Operations(string filename)
 {
-    readInstanceFromFile(filename);
+    this->filename = filename;
 }
 
 Operations::Operations(const Operations& operations)

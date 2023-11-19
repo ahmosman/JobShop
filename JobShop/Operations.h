@@ -11,10 +11,10 @@ using namespace std;
 class Operations
 {
     protected:
+        string filename;
         vector<vector<int>> operations_duration;
         vector<vector<int>> operations_machines;
 
-        void readInstanceFromFile(string filename);
 
         vector<vector<Operation>> getReversedOperations(vector<vector<Operation>> operations);
 
@@ -26,4 +26,6 @@ class Operations
         Operations(const Operations& operations);
         Operations getResizedOperations(int limit);
         int getJobsNum();
+        void readInstanceTaillard();
+        void readInstanceBeasley();
 };
