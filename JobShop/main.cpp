@@ -18,9 +18,9 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    int population = 50;
-    int crossovers = 10;
-    float mutation_rate = 0.4;
+    int population = 500;
+    int crossovers = 25;
+    float mutation_rate = 0.05;
 
     string filename;
     int execution_time = 10;
