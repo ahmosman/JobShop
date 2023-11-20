@@ -15,46 +15,43 @@ using namespace std;
 // 2 parametr: typ instancji t -Taillard b - Beasley
 // 3 parametr: dlugosc wykonywania w sekundach
 
-
 int main(int argc, char* argv[]) {
 
-    int population = 50;
-    int crossovers = 10;
-    float mutation_rate = 0.4;
+    int population = 600;
+    int crossovers = 20;
+    float mutation_rate = 0.1;
 
     string filename;
     int execution_time = 10;
 
-    if (!argv[1]) {
-        cout << "Podaj nazwe pliku i typ instancji";
-        exit(0);
+    vector<int> times = { 60, 120, 180 };
+    vector<string> filenames = { "instance_ta20.txt", "instance_ta21.txt", "instance_ta22.txt", "instance_ta23.txt", "instance_ta24.txt", "instance_ta25.txt" };
+
+    for (int t = 0; t < times.size(); t++) {
+        cout << "Time: " << times[t] << endl;
+        for (int inst = 0; inst < filenames.size(); inst++) {
+
+            string filename = filenames[inst];
+
+            Operations op(filename);
+
+            op.readInstanceBeasley();
+
+            Generation gen1(op, population, crossovers, mutation_rate);
+
+            Schedule optimized = gen1.getOptimizedSchedule(times[t]);
+           
+            cout << "Instance: " << filename << "\tMakespan: " << optimized.makespan << endl;
+
+            //this_thread::sleep_for(chrono::seconds(2));
+
+        }
+
+        cout << endl;
+        cout << endl;
     }
 
-    filename = argv[1];
-    Operations op(filename);
 
-
-    if (argv[2][0] == 't') {
-        op.readInstanceTaillard();
-    }
-    else {
-        op.readInstanceBeasley();
-    }
-
-    if (argv[3]) {
-        execution_time = stoi(argv[3]);
-    }
-
-    Generation gen1(op, population, crossovers, mutation_rate);
-
-    Schedule optimized1 = gen1.getOptimizedSchedule(execution_time);
-    optimized1.printJobTimes();
-
-    cout << '\n';
-
-    optimized1.printResult();
-
-    this_thread::sleep_for(chrono::seconds(2));
  
     return 0;
 }

@@ -109,11 +109,11 @@ Schedule Generation::getOptimizedSchedule(int time_seconds)
             min_makespan = curr_makespan;
         }
 
-        cout << "\x1B[2J\x1B[H";
-        printCurrentMakespans(generation);
+        //cout << "\x1B[2J\x1B[H";
+        //printCurrentMakespans(generation);
     }
 
-    cout << "\x1B[2J\x1B[H";
+    //cout << "\x1B[2J\x1B[H";
 
     return generation[0];
 
@@ -139,7 +139,7 @@ vector<Schedule> Generation::getChildrenFromTournament(vector<Schedule> generati
     mt19937 g(rd());
     shuffle(generation.begin(), generation.end(), g);
 
-    int tournament_count = population / crossovers;
+    int tournament_count = population / crossovers / 2;
 
     for (int i = 0; i < population; i += tournament_count) {
         // Tworzenie turnieju
