@@ -109,11 +109,11 @@ Schedule Generation::getOptimizedSchedule(int time_seconds)
             min_makespan = curr_makespan;
         }
 
-        cout << "\x1B[2J\x1B[H";
-        printCurrentMakespans(generation);
+        //cout << "\x1B[2J\x1B[H";
+        //printCurrentMakespans(generation);
     }
 
-    cout << "\x1B[2J\x1B[H";
+    //cout << "\x1B[2J\x1B[H";
 
     return generation[0];
 

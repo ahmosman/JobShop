@@ -18,9 +18,9 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    int population = 500;
-    int crossovers = 25;
-    float mutation_rate = 0.05;
+    int population = 50;
+    int crossovers = 10;
+    float mutation_rate = 0.1;
 
     string filename;
     int execution_time = 10;
@@ -48,11 +48,12 @@ int main(int argc, char* argv[]) {
     Generation gen1(op, population, crossovers, mutation_rate);
 
     Schedule optimized1 = gen1.getOptimizedSchedule(execution_time);
+
     optimized1.printJobTimes();
 
     cout << '\n';
 
-    optimized1.printResult();
+    //optimized1.printResult();
 
     this_thread::sleep_for(chrono::seconds(2));
  
