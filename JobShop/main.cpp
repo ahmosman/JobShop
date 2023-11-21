@@ -24,30 +24,23 @@ int main(int argc, char* argv[]) {
     string filename;
     int execution_time = 10;
 
-    vector<int> times = { 60, 120, 180 };
-    vector<string> filenames = { "instance_ta20.txt", "instance_ta21.txt", "instance_ta22.txt", "instance_ta23.txt", "instance_ta24.txt", "instance_ta25.txt" };
 
-    for (int t = 0; t < times.size(); t++) {
-        cout << "Time: " << times[t] << endl;
-        for (int inst = 0; inst < filenames.size(); inst++) {
+    for (int i = 1; i <= 20; i++) {
 
-            string filename = filenames[inst];
+        string filename = "instance_ta25.txt";
 
-            Operations op(filename);
+        Operations op(filename);
 
-            op.readInstanceBeasley();
+        op.readInstanceBeasley();
 
-            Generation gen1(op, population, crossovers, mutation_rate);
+        Operations resized = op.getResizedOperations(i);
 
-            Schedule optimized = gen1.getOptimizedSchedule(times[t]);
-           
-            cout << "Instance: " << filename << "\tMakespan: " << optimized.makespan << endl;
+        Generation gen1(resized, population, crossovers, mutation_rate);
 
-            //this_thread::sleep_for(chrono::seconds(2));
+        Schedule optimized = gen1.getOptimizedSchedule(60);
 
-        }
+        cout << "No jobs: " << i << "\tMakespan: " << optimized.makespan << endl;
 
-        cout << endl;
         cout << endl;
     }
 
