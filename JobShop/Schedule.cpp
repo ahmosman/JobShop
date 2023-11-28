@@ -1,15 +1,13 @@
 #include "Schedule.h"
 
-void Schedule::createRandomSchedule()
+void Schedule::createGraspSchedule()
 {
 	while (!queue.isEmpty()) {
-		Operation operation_to_add = queue.popRandomPendingOperation();
+		Operation operation_to_add = queue.popGreedyRandomPendingOperation();
 		addOperationToSchedule(operation_to_add);
-		//cout << "\x1B[2J\x1B[H";
-		//printSchedule();
 	}
 }
-
+/*
 void Schedule::createScheduleByJobsOrder(vector<int> job_order)
 {
 	for (int job : job_order) {
@@ -17,7 +15,7 @@ void Schedule::createScheduleByJobsOrder(vector<int> job_order)
 		addOperationToSchedule(operation_to_add);
 	}
 }
-
+*/
 Schedule::Schedule(Operations operations) : queue(operations)
 {
 	num_machines = operations.num_machines;
@@ -45,24 +43,6 @@ Operation Schedule::getRecentJobOperation(int job_no)
 void Schedule::setRecentJobOperation(Operation operation)
 {
 	recent_jobs_operations[operation.job_no] = operation;
-}
-
-vector<vector<Operation>> Schedule::getScheduleQueue()
-{
-	vector<vector<Operation>> schedule_queue = vector<vector<Operation>>(num_machines, vector<Operation>());
-
-	for (int machine = 0; machine < schedule.size(); machine++) {
-
-		vector<Operation> machine_operations = schedule[machine];
-
-		for (int operation = 0; operation < machine_operations.size(); operation++) {
-			if (!machine_operations[operation].is_empty) {
-				schedule_queue[machine].push_back(machine_operations[operation]);
-			}
-		}
-	}
-
-	return schedule_queue;
 }
 
 bool Schedule::insertOperationInEmptySpace(Operation operation)

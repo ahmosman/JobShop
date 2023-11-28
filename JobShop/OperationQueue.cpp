@@ -21,75 +21,61 @@ int OperationQueue::getRandomIndex(int from, int to)
     return dis(gen);
 }
 
-Operation OperationQueue::popNextOperationForJob(int job_no)
-{
-    Operation picked_operation = _queue[job_no].back();
-    _queue[job_no].pop_back();
-    return picked_operation;
-}
 
-Operation OperationQueue::getNextOperationForJob(int job_no)
+Operation OperationQueue::popGreedyRandomPendingOperation()
 {
-    Operation picked_operation = _queue[job_no].back();
-    return picked_operation;
-}
+    vector<Operation> all_pending_operations = getAllPendingOperations();
 
-Operation OperationQueue::popRandomPendingOperation()
-{
-    int random_index = getRandomIndex(0, _queue.size());
+    int pending_operations_no = all_pending_operations.size();
 
-    while (_queue[random_index].empty()) {
-        random_index = getRandomIndex(0, _queue.size());
+    Operation picked_operation;
+
+    if (pending_operations_no > 1) {
+
+        int subset_no = getRandomIndex(2, pending_operations_no + 1);
+
+        // Sortuj wg. dlugosci wykonywania operacji
+        sort(all_pending_operations.begin(), all_pending_operations.end(),
+        [](const Operation& a, const Operation& b) {
+            return a.duration < b.duration;
+        });
+
+        //Otrzymaj zbior najkrotszych operacji o dlugosci subset_no
+        vector<Operation> resized_pending_operations(all_pending_operations.begin(), all_pending_operations.begin() + subset_no);
+
+        vector<Operation> pending_operations = resized_pending_operations;
+
+        // ze zbioru wylosuj operacje do dodania
+        int operation_index = getRandomIndex(0, subset_no);
+
+        picked_operation = pending_operations[operation_index];
+    }
+    else {
+        picked_operation = all_pending_operations[0];
     }
 
-    Operation picked_operation = _queue[random_index].back();
-    _queue[random_index].pop_back();
+    _queue[picked_operation.job_no].pop_back();
 
    //cout << picked_operation.job_no << '\t';
 
     return picked_operation;
 }
 
-bool OperationQueue::anyPendingOperationByMachine(int machine)
+vector<Operation> OperationQueue::getAllPendingOperations()
 {
+    vector<Operation> pending_operations;
+
     for (vector<Operation>& job_operations : _queue) {
 
         if (!job_operations.empty()) {
 
             Operation next_operation = job_operations.back();
 
-            if (next_operation.machine == machine) {
-                return true;
-            }
+            pending_operations.push_back(next_operation);
         }
     }
 
-    return false;
-}
-
-Operation OperationQueue::popRandomPendingOperationByMachine(int machine)
-{
-    vector<Operation> pending_machine_operations;
-
-    for (vector<Operation> &job_operations : _queue) {
-
-        if (!job_operations.empty()) {
-
-            Operation next_operation = job_operations.back();
-
-            if (next_operation.machine == machine) {
-                pending_machine_operations.push_back(next_operation);
-            }
-        }
-    }
-
-    random_device rd;
-    default_random_engine rng(rd());
-    shuffle(pending_machine_operations.begin(), pending_machine_operations.end(), rng);
-
-    Operation random_operation = pending_machine_operations.front();
-
-    return random_operation;
+    return pending_operations;
 }
 
 bool OperationQueue::isEmpty()

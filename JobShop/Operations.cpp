@@ -43,7 +43,7 @@ void Operations::readInstanceBeasley()
 {
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Nie uda³o siê otworzyæ pliku." << endl;
+        cerr << "Nie udalo sie otworzyc pliku." << endl;
         exit(0);
     }
 

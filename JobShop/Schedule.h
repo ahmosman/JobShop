@@ -18,15 +18,14 @@ class Schedule
 		bool insertOperationInEmptySpace(Operation operation);
 		void overrideEmptyOperation(int empty_operation_index, Operation operation);
 		void insertOperationInEnd(Operation operation);
+		void addOperationToSchedule(Operation operation);
 
 	public:
 		int makespan, num_machines = 0, num_jobs = 0;
 		OperationQueue queue;
-		void createRandomSchedule();
+		void createGraspSchedule();
 		void createScheduleByJobsOrder(vector<int> job_order);
 		Schedule(Operations operations);
-		void addOperationToSchedule(Operation operation);
-		vector<vector<Operation>> getScheduleQueue();
 		void printSchedule();
 		void printJobTimes();
 		void printResult();

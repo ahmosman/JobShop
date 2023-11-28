@@ -14,11 +14,8 @@ class OperationQueue
 	public:
 		vector<vector<Operation>> _queue;
 		OperationQueue(Operations operations);
-		Operation getNextOperationForJob(int job_no);
-		Operation popNextOperationForJob(int job_no);
-		Operation popRandomPendingOperation();
-		bool anyPendingOperationByMachine(int machine);
-		Operation popRandomPendingOperationByMachine(int machine_number);
+		Operation popGreedyRandomPendingOperation();
+		vector<Operation> getAllPendingOperations();
 		bool isEmpty();
 };
 

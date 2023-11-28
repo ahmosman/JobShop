@@ -1,10 +1,8 @@
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <thread>
 #include <string>
 #include "Schedule.h"
-#include "Generation.h"
+#include "Grasp.h"
 
 using namespace std;
 
@@ -26,8 +24,8 @@ int main(int argc, char* argv[]) {
     int execution_time = 10;
 
     if (!argv[1]) {
-        cout << "Podaj nazwe pliku i typ instancji";
-        exit(0);
+       cout << "Podaj nazwe pliku i typ instancji";
+       exit(0);
     }
 
     filename = argv[1];
@@ -45,17 +43,14 @@ int main(int argc, char* argv[]) {
         execution_time = stoi(argv[3]);
     }
 
-    Generation gen1(op, population, crossovers, mutation_rate);
+    Grasp grasp(op);
+    Schedule optimized1 = grasp.getOptimizedSchedule(execution_time);
 
-    Schedule optimized1 = gen1.getOptimizedSchedule(execution_time);
+    //optimized1.printResult();
 
     optimized1.printJobTimes();
 
     cout << '\n';
-
-    //optimized1.printResult();
-
-    this_thread::sleep_for(chrono::seconds(2));
  
     return 0;
 }
