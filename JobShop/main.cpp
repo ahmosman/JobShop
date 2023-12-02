@@ -16,10 +16,6 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    int population = 50;
-    int crossovers = 10;
-    float mutation_rate = 0.1;
-
     string filename;
     int execution_time = 10;
 
