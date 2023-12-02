@@ -16,41 +16,37 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-    int population = 50;
-    int crossovers = 10;
-    float mutation_rate = 0.1;
+    vector<int> times = { 10 };
+    vector<string> filenames = { "instance_ta25.txt" };
 
-    string filename;
-    int execution_time = 10;
+    for (int t = 0; t < times.size(); t++) {
 
-    if (!argv[1]) {
-       cout << "Podaj nazwe pliku i typ instancji";
-       exit(0);
+        cout << "Time (s): " << times[t] << endl;
+        for (int inst = 0; inst < filenames.size(); inst++) {
+            string filename = filenames[inst];
+            cout << "Instance " << filename << endl;
+
+
+            for (int j = 1; j <= 20; j++) {
+                
+                cout << "Job NO " << j << endl;
+                cout << "Makespans: ";
+                for (int i = 1; i <= 5; i++) {
+                    Operations op(filename);
+                    op.readInstanceBeasley();
+                    Operations resized = op.getResizedOperations(j);
+                    Grasp grasp(resized);
+                    Schedule optimized = grasp.getOptimizedSchedule(times[t]);
+
+                    cout << optimized.makespan << " ";
+                }
+                cout << "\n\n";
+            }
+
+            cout << "\n\n";
+        }
+        cout << "\n\n";
     }
-
-    filename = argv[1];
-    Operations op(filename);
-
-
-    if (argv[2][0] == 't') {
-        op.readInstanceTaillard();
-    }
-    else {
-        op.readInstanceBeasley();
-    }
-
-    if (argv[3]) {
-        execution_time = stoi(argv[3]);
-    }
-
-    Grasp grasp(op);
-    Schedule optimized1 = grasp.getOptimizedSchedule(execution_time);
-
-    //optimized1.printResult();
-
-    optimized1.printJobTimes();
-
-    cout << '\n';
  
     return 0;
 }
