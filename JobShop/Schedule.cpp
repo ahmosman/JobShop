@@ -101,7 +101,7 @@ void Schedule::overrideEmptyOperation(int index, Operation operation)
 
 		Operation recent_operation = getRecentJobOperation(operation.job_no);
 
-		// Dodawanie pustej operacji przed wprowadzan¹ operacj¹
+		// Adding an empty operation before the inserted operation
 		if (recent_operation.end_time >= override_operation.start_time) {
 
 			Operation new_empty_operation;
@@ -118,7 +118,7 @@ void Schedule::overrideEmptyOperation(int index, Operation operation)
 			override_operation.duration = override_operation.end_time - override_operation.start_time + 1;
 		}
 
-		// Dodawanie pustej operacji przed wprowadzan¹ operacj¹
+		// Adding an empty operation before the inserted operation
 		if (override_operation.duration > operation.duration) {
 			Operation new_empty_operation;
 			new_empty_operation.is_empty = true;

@@ -2,6 +2,7 @@
 #include "Schedule.h"
 #include <algorithm>
 #include <chrono>
+#include <climits>
 
 using namespace std;
 

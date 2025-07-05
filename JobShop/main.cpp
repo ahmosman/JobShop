@@ -8,12 +8,12 @@
 
 using namespace std;
 
-//Sposob kompilacji linux: W folderze z plikami zrodlowymi i naglowkowymi wykonac: g++ -o main.o ./*.cpp
+// Linux compilation method: In the folder with source and header files, run: g++ -o main.o ./*.cpp
 
-// Przyklad wywolania: ./main.o instance_some.txt t 10
-// 1 parametr: nazwa pliku z instancja
-// 2 parametr: typ instancji t -Taillard b - Beasley
-// 3 parametr: dlugosc wykonywania w sekundach
+// Example usage: ./main.o instance_some.txt t 10
+// 1st parameter: instance file name
+// 2nd parameter: instance type t - Taillard, b - Beasley
+// 3rd parameter: execution time in seconds
 
 
 int main(int argc, char* argv[]) {
@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     int execution_time = 10;
 
     if (!argv[1]) {
-        cout << "Podaj nazwe pliku i typ instancji";
+        cout << "Provide the file name and instance type";
         exit(0);
     }
 

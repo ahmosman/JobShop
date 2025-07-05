@@ -74,7 +74,7 @@ bool Generation::shouldMutate()
 
 Schedule Generation::getOptimizedSchedule(int time_seconds)
 {
-    int min_makespan = 99999999999;
+    int min_makespan = INT_MAX;
 
     auto duration = std::chrono::seconds(time_seconds);
 
@@ -134,7 +134,7 @@ vector<Schedule> Generation::getChildrenFromTournament(vector<Schedule> generati
     vector<Schedule> children;
     vector<Schedule> parents;
 
-    // Losowe wymieszanie generacji
+    // Randomly shuffle the generation
     random_device rd;
     mt19937 g(rd());
     shuffle(generation.begin(), generation.end(), g);
@@ -142,17 +142,17 @@ vector<Schedule> Generation::getChildrenFromTournament(vector<Schedule> generati
     int tournament_count = population / crossovers;
 
     for (int i = 0; i < population; i += tournament_count) {
-        // Tworzenie turnieju
+        // Creating a tournament
         vector<Schedule> tournament(generation.begin() + i, generation.begin() + i + tournament_count);
 
-        // Wybranie zwyciêzcy turnieju na podstawie makespan
+        // Select the winner of the tournament based on makespan
         sort(tournament.begin(), tournament.end(),
             [](const Schedule& a, const Schedule& b) {
                 return a.makespan < b.makespan;
             });
         Schedule winner = tournament.front();
 
-        // Dodanie zwyciêzcy do rodziców
+        // Add the winner to the parents
         parents.push_back(winner);
 
         if (parents.size() == 2) {

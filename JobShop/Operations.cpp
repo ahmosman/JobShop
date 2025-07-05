@@ -5,11 +5,12 @@ void Operations::readInstanceTaillard()
 {
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Nie uda³o siê otworzyæ pliku." << endl;
+        cerr << "Failed to open the file." << endl;
         exit(0);
     }
 
     file >> num_jobs >> num_machines;
+    cout << "num_jobs: " << num_jobs << ", num_machines: " << num_machines << endl;
 
     _operations = vector<vector<Operation>>(num_jobs, vector<Operation>());
 
@@ -18,7 +19,10 @@ void Operations::readInstanceTaillard()
 
     for (int i = 0; i < num_jobs; ++i) {
         for (int j = 0; j < num_machines; ++j) {
-            file >> operations_duration[i][j];
+            if (!(file >> operations_duration[i][j])) {
+                cerr << "Error reading duration at [" << i << "][" << j << "]." << endl;
+                exit(1);
+            }
             Operation operation;
             operation.duration = operations_duration[i][j];
             operation.job_no = i;
@@ -29,11 +33,13 @@ void Operations::readInstanceTaillard()
 
     for (int i = 0; i < num_jobs; ++i) {
         for (int j = 0; j < num_machines; ++j) {
-            file >> operations_machines[i][j];
+            if (!(file >> operations_machines[i][j])) {
+                cerr << "Error reading machine at [" << i << "][" << j << "]." << endl;
+                exit(1);
+            }
             _operations[i][j].machine = operations_machines[i][j] - 1;
         }
     }
-
     _reversed_operations = getReversedOperations(_operations);
 
     file.close();
@@ -43,7 +49,7 @@ void Operations::readInstanceBeasley()
 {
     ifstream file(filename);
     if (!file.is_open()) {
-        cerr << "Nie uda³o siê otworzyæ pliku." << endl;
+        cerr << "Failed to open the file." << endl;
         exit(0);
     }
 
